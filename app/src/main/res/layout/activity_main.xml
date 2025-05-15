@@ -34,11 +34,10 @@
 
         <EditText
             android:id="@+id/txtUsername"
-            style="@style/Widget.Material3.AutoCompleteTextView.FilledBox"
             android:layout_width="214dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#011E2A"
+            android:background="@drawable/rounded_yellow_border"
             android:gravity="center"
             android:hint="Username"
             android:includeFontPadding="false"
@@ -46,7 +45,6 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#FFFFFF"
             android:textColorHint="#FAEC7E"
             android:textSize="16dp" />
@@ -61,7 +59,7 @@
             android:layout_width="214dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#011E2A"
+            android:background="@drawable/rounded_yellow_border"
             android:gravity="center"
             android:hint="Password"
             android:includeFontPadding="false"
