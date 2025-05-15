@@ -54,8 +54,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+
         <EditText
-            android:id="@+id/txtPassword"
+            android:id="@+id/textPassword"
+            android:ems="10"
+            android:inputType="textPassword"
             android:layout_width="214dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -70,7 +73,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#FFFFFF"
             android:textColorHint="#FAEC7E"
-            android:textSize="16dp" />
+            android:textSize="16dp" />/>
 
         <TextView
             android:id="@+id/textView3"
