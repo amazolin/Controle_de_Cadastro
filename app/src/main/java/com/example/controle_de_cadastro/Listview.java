@@ -31,7 +31,5 @@ public class Listview extends AppCompatActivity {
             }
         };
 
-        ListView listView = findViewById(R.id.listView); // Encontra a ListView no layout activity_lista.xml
-        listView.setAdapter(adapter);
     }
 }
