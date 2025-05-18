@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "986940447096",
+    "firebase_url": "https://controlecadastro-d80b9-default-rtdb.firebaseio.com",
+    "project_id": "controlecadastro-d80b9",
+    "storage_bucket": "controlecadastro-d80b9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986940447096:android:d431a734d57137c3b7508d",
+        "android_client_info": {
+          "package_name": "com.example.controle_de_cadastro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDN2fHKqPS8tgDIaZjltKIzeHElDa0EDo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

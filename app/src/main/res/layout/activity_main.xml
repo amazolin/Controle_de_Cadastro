@@ -80,6 +80,7 @@
             android:background="@drawable/rounded_yellow_border"
             android:gravity="center"
             android:hint="Password"
+            android:inputType="textPassword"
             android:includeFontPadding="false"
             android:padding="12dp"
             android:selectAllOnFocus="true"

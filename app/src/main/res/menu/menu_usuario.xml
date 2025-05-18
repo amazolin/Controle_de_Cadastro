@@ -11,6 +11,13 @@
         android:icon="@drawable/ticket"
         android:title="Ticket"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/certificado"
+        android:icon="@drawable/certificado"
+        android:title="Certificado"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/sair"
         android:icon="@drawable/sair"
