@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/criar_eventos"
+        android:icon="@drawable/adicionar"
+        android:title="Criar evento"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/ler_QR_code"
+        android:icon="@drawable/varreduraqr"
+        android:title="Ler QR Code"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/lista_participante"
+        android:icon="@drawable/listapresenca"
+        android:title="Participantes"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/sair"
+        android:icon="@drawable/sair"
+        android:title="Sair"
+        app:showAsAction="ifRoom"/>
+</menu>

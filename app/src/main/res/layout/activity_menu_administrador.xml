@@ -45,6 +45,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/menu_usuario" />
+        app:menu="@menu/menu_administrador" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
