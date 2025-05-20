@@ -3,9 +3,11 @@ package com.example.controle_de_cadastro;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -13,6 +15,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class MenuAdministrador extends AppCompatActivity {
 
@@ -40,7 +44,11 @@ public class MenuAdministrador extends AppCompatActivity {
                     return true;
 
                 } else if (id == R.id.ler_QR_code) {
-                    // lógica do QR Code
+                    IntentIntegrator integrator = new IntentIntegrator(MenuAdministrador.this);
+                    integrator.setPrompt("Aponte a câmera para o QR Code");
+                    integrator.setOrientationLocked(false);
+                    integrator.setBeepEnabled(true);
+                    integrator.initiateScan();
                     return true;
 
                 } else if (id == R.id.lista_participante) {
@@ -55,6 +63,21 @@ public class MenuAdministrador extends AppCompatActivity {
                 return false;
             }
         });
+    }
 
+    // Trata o resultado da leitura do QR Code
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() != null) {
+                Toast.makeText(this, "QR Code: " + result.getContents(), Toast.LENGTH_LONG).show();
+                // Aqui você pode iniciar outra Activity ou salvar o conteúdo
+            } else {
+                Toast.makeText(this, "Leitura cancelada", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
