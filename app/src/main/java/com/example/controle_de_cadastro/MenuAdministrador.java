@@ -60,7 +60,8 @@ public class MenuAdministrador extends AppCompatActivity {
                     return true;
 
                 } else if (id == R.id.lista_participante) {
-                    // lógica para abrir lista
+                    Intent intent = new Intent(MenuAdministrador.this, Lista_de_Presenca.class);
+                    startActivity(intent);
                     return true;
 
                 } else if (id == R.id.sair) {
@@ -73,7 +74,7 @@ public class MenuAdministrador extends AppCompatActivity {
         });
     }
 
-    // Trata o resultado da leitura do QR Code
+        // Trata o resultado da leitura do QR Code
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

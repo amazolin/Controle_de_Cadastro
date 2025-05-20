@@ -19,6 +19,9 @@
         android:theme="@style/Theme.Controle_de_Cadastro"
         tools:targetApi="31">
         <activity
+            android:name=".Lista_de_Presenca"
+            android:exported="false" />
+        <activity
             android:name=".QR_Code"
             android:exported="false" />
         <activity
