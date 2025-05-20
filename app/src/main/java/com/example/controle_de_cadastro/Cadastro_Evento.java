@@ -1,5 +1,7 @@
 package com.example.controle_de_cadastro;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -7,18 +9,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 public class Cadastro_Evento extends AppCompatActivity {
 
     EditText txtEvento, txtDataInicio, txtHoraInicio, txtDataTermino, txtHoraTermino;
-    Button btnCriarEvento;
+    Button btnCriarEvento, btnSairEvento;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +26,7 @@ public class Cadastro_Evento extends AppCompatActivity {
         txtDataTermino = findViewById(R.id.txtDataTermino);
         txtHoraTermino = findViewById(R.id.txtHoraTermino);
         btnCriarEvento = findViewById(R.id.btnCriarEvento);
+        btnSairEvento = findViewById(R.id.btnSairEvento);
 
         btnCriarEvento.setOnClickListener(v -> {
             try {
@@ -53,5 +50,13 @@ public class Cadastro_Evento extends AppCompatActivity {
             }
         });
 
+        btnSairEvento.setOnClickListener(v -> sairParaMainActivity());
+    }
+
+    private void sairParaMainActivity() {
+        Intent intent = new Intent(Cadastro_Evento.this, MenuAdministrador.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 }

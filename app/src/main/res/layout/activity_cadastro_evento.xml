@@ -177,6 +177,19 @@
                 android:textColor="#FFFFFF"
                 android:text="Criar evento" />
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnSairEvento"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:backgroundTint="#8C1B8B"
+                android:textColor="#FFFFFF"
+                android:text="Voltar" />
+
         </LinearLayout>
 
 

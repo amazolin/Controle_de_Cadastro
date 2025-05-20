@@ -1,6 +1,7 @@
 package com.example.controle_de_cadastro;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,12 +32,24 @@ public class menuusuario extends AppCompatActivity {
     private List<String> listaEventosVisiveis;
     private List<String> listaIdsEventos;
 
-    private final String cpfAluno = "65683835656"; // Substitua futuramente por SharedPreferences
+    private String cpfAluno;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menuusuario);
+
+        // Recupera CPF do SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
+        cpfAluno = prefs.getString("cpf", null);
+        cpfAluno = getIntent().getStringExtra("cpfAluno");
+
+
+        if (cpfAluno == null) {
+            Toast.makeText(this, "Erro ao obter CPF do usuário", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

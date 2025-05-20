@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                         if (tipoUsuario.equals("usuario")) {
                             try {
                                 Intent it = new Intent(getApplicationContext(), menuusuario.class);
+                                it.putExtra("cpfAluno", aluno.getCpf());
                                 startActivity(it);
                             } catch (Exception e) {
                                 e.printStackTrace();
