@@ -1,8 +1,11 @@
 package com.example.controle_de_cadastro;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -39,8 +42,16 @@ public class Lista_de_Presenca extends AppCompatActivity {
 
         lista_presenca = findViewById(R.id.lista_presenca);
         listaDados = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listaDados);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listaDados) {
+            @Override
+            public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                TextView textView = (TextView) super.getView(position, convertView, parent);
+                textView.setTextColor(Color.YELLOW); // ou qualquer cor que quiser, ex: Color.RED
+                return textView;
+            }
+        };
         lista_presenca.setAdapter(adapter);
+
 
         carregarPresencas();
     }

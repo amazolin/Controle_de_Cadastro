@@ -12,7 +12,7 @@
         android:id="@+id/editTextText1"
         android:layout_width="0dp"
         android:layout_height="75dp"
-        android:background="#673AB7"
+        android:background="#3364B6"
         android:drawablePadding="8dp"
         android:enabled="false"
         android:fontFamily="@font/aoboshi_one"
@@ -28,10 +28,22 @@
         android:id="@+id/lista_presenca"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText1"
+        app:layout_constraintTop_toBottomOf="@id/editTextText1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:divider="@drawable/rounded_yellow_border"/>
+        android:background="@drawable/borda_listview" />
 
-
+    <Button
+        android:id="@+id/voltarLista"
+        android:layout_width="375dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="#8C1B8B"
+        android:fontFamily="@font/aoboshi_one"
+        android:text="Voltar"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+

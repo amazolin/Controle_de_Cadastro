@@ -168,14 +168,20 @@
             android:padding="16dp">
 
 
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="34dp" />
 
             <Button
                 android:id="@+id/btnCriarEvento"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:backgroundTint="#8C1B8B"
+                android:fontFamily="@font/aoboshi_one"
+                android:text="Criar evento"
                 android:textColor="#FFFFFF"
-                android:text="Criar evento" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/textView"
@@ -187,8 +193,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:backgroundTint="#8C1B8B"
+                android:fontFamily="@font/aoboshi_one"
+                android:text="Voltar"
                 android:textColor="#FFFFFF"
-                android:text="Voltar" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 
