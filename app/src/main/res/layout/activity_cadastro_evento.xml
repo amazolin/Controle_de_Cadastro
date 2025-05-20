@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Cadastro_Evento">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#012C3D"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <EditText
+            android:id="@+id/editTextText"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:background="#0D0D0D"
+            android:ems="10"
+            android:inputType="text" />
+
+        <ImageView
+            android:id="@+id/imageView0"
+            android:layout_width="322dp"
+            android:layout_height="251dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/infinit" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="94dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:translationY="30dp"
+            app:srcCompat="@drawable/certificado" />
+
+        <EditText
+            android:id="@+id/txtEvento"
+            android:layout_width="214dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_yellow_border"
+            android:gravity="center"
+            android:hint="Evento"
+            android:includeFontPadding="false"
+            android:padding="12dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:textSize="16dp" />
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:background="#00FFFFFF"
+            android:translationY="30dp"
+            app:srcCompat="@drawable/calendario" />
+
+        <EditText
+            android:id="@+id/txtDataInicio"
+            android:layout_width="214dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_yellow_border"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="Data de início"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="94dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:translationY="30dp"
+            app:srcCompat="@drawable/relogio" />
+
+        <EditText
+            android:id="@+id/txtHoraInicio"
+            android:layout_width="214dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_yellow_border"
+            android:gravity="center"
+            android:hint="Horário de início"
+            android:includeFontPadding="false"
+            android:inputType="number"
+            android:maxLength="11"
+            android:padding="12dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:textSize="16dp" />
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:translationY="30dp"
+            app:srcCompat="@drawable/calendario" />
+
+        <EditText
+            android:id="@+id/txtDataTermino"
+            android:layout_width="214dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_yellow_border"
+            android:gravity="center"
+            android:hint="Data de término"
+            android:includeFontPadding="false"
+            android:padding="12dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:textSize="16dp" />
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="96dp"
+            android:layout_height="wrap_content"
+            android:translationY="30dp"
+            app:srcCompat="@drawable/relogio" />
+
+        <EditText
+            android:id="@+id/txtHoraTermino"
+            android:layout_width="214dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/rounded_yellow_border"
+            android:gravity="center"
+            android:hint="Horário de término"
+            android:includeFontPadding="false"
+            android:padding="12dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF"
+            android:textSize="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+
+
+            <Button
+                android:id="@+id/btnCriarEvento"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:backgroundTint="#8C1B8B"
+                android:textColor="#FFFFFF"
+                android:text="Criar evento" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
