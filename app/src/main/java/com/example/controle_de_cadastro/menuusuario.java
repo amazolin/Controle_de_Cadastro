@@ -1,6 +1,5 @@
 package com.example.controle_de_cadastro;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -26,22 +24,29 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class menuusuario extends AppCompatActivity {
 
     private ArrayAdapter<String> adapter;
-    private List<String> listaEventos;
+    private List<String> listaEventosVisiveis;
+    private List<String> listaIdsEventos;
 
-    @SuppressLint("MissingInflatedId")
+    private final String cpfAluno = "65683835656"; // Substitua futuramente por SharedPreferences
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_menuusuario);
 
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        // Configura Bottom Navigation
         BottomNavigationView navigation = findViewById(R.id.bottom_navigation);
-        navigation.setOnNavigationItemSelectedListener(item -> {
+        navigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.sair) {
@@ -59,25 +64,91 @@ public class menuusuario extends AppCompatActivity {
                 return true;
             }
 
-            return true;
+            if (id == R.id.ticket) {
+                if (listaEventosVisiveis.isEmpty()) {
+                    Toast.makeText(menuusuario.this, "Nenhum evento disponível para gerar QR Code", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+
+                String eventoSelecionado = listaEventosVisiveis.get(0);
+                String nomeEvento = extrairNomeEvento(eventoSelecionado);
+
+                DatabaseReference alunoRef = FirebaseDatabase.getInstance()
+                        .getReference("alunos")
+                        .child(cpfAluno);
+
+                alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            String nomeAluno = snapshot.child("nome").getValue(String.class);
+                            String emailAluno = snapshot.child("email").getValue(String.class);
+                            String cpf = snapshot.child("cpf").getValue(String.class);
+
+                            if (nomeAluno != null && emailAluno != null && cpf != null) {
+                                String conteudoQR = "Nome: " + nomeAluno +
+                                        "\nCPF: " + cpf +
+                                        "\nEmail: " + emailAluno +
+                                        "\nEvento: " + nomeEvento;
+
+                                Intent intent = new Intent(menuusuario.this, QR_Code.class);
+                                intent.putExtra("conteudoQR", conteudoQR);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(menuusuario.this, "Dados incompletos do aluno", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(menuusuario.this, "Aluno não encontrado no banco de dados", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(menuusuario.this, "Erro ao buscar dados do aluno", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                return true;
+            }
+
+            return false;
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
+        // Inicialização das listas e ListView
         ListView listView = findViewById(R.id.listView);
-        listaEventos = new ArrayList<>();
+        listaEventosVisiveis = new ArrayList<>();
+        listaIdsEventos = new ArrayList<>();
+
         adapter = new ArrayAdapter<>(
                 this,
                 R.layout.activity_listview,
                 R.id.listItemView,
-                listaEventos
+                listaEventosVisiveis
         );
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            String eventoSelecionado = listaEventosVisiveis.get(position);
+            String eventoId = listaIdsEventos.get(position);
+
+            new androidx.appcompat.app.AlertDialog.Builder(menuusuario.this)
+                    .setTitle("Participar do Evento")
+                    .setMessage("Deseja participar deste evento?\n\n" + eventoSelecionado)
+                    .setPositiveButton("Participar", (dialog, which) -> {
+                        DatabaseReference participacaoRef = FirebaseDatabase.getInstance()
+                                .getReference("participacoes")
+                                .child(eventoId)
+                                .child(cpfAluno);
+
+                        participacaoRef.setValue(true)
+                                .addOnSuccessListener(unused -> Toast.makeText(menuusuario.this, "Inscrição salva com sucesso!", Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> Toast.makeText(menuusuario.this, "Erro ao salvar inscrição", Toast.LENGTH_SHORT).show());
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
+
+        // Carrega eventos do Firebase
         carregarEventosDoFirebase();
     }
 
@@ -87,15 +158,18 @@ public class menuusuario extends AppCompatActivity {
         eventosRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                listaEventos.clear();
+                listaEventosVisiveis.clear();
+                listaIdsEventos.clear();
+
                 for (DataSnapshot dado : snapshot.getChildren()) {
                     Evento evento = dado.getValue(Evento.class);
                     if (evento != null) {
                         String info = "Nome Evento: " + evento.getNome() +
                                 "\n\nData Início: " + formatarData(evento.getDataInicio()) + "   " + formatarHora(evento.getHoraInicio()) +
                                 "\n\nData Término: " + formatarData(evento.getDataTermino()) + "   " + formatarHora(evento.getHoraTermino());
-                        listaEventos.add(info);
 
+                        listaEventosVisiveis.add(info);
+                        listaIdsEventos.add(evento.getId());
                     }
                 }
                 adapter.notifyDataSetChanged();
@@ -115,18 +189,15 @@ public class menuusuario extends AppCompatActivity {
         return hora;
     }
 
-
     private String formatarData(String data) {
         try {
-            SimpleDateFormat formatoEntrada = new SimpleDateFormat("ddMMyyyy"); // quando os dados vierem assim
+            SimpleDateFormat formatoEntrada = new SimpleDateFormat("ddMMyyyy");
             SimpleDateFormat formatoSaida = new SimpleDateFormat("dd/MM/yyyy");
             return formatoSaida.format(formatoEntrada.parse(data));
         } catch (Exception e) {
-            return data; // caso já venha no formato certo ou erro de parsing
+            return data;
         }
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -136,10 +207,7 @@ public class menuusuario extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(this, "Item selecionado: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-
         int id = item.getItemId();
-
         if (id == R.id.sair) {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Confirmar saída")
@@ -157,5 +225,15 @@ public class menuusuario extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String extrairNomeEvento(String eventoStr) {
+        if (eventoStr.contains("Nome Evento:")) {
+            int inicio = eventoStr.indexOf("Nome Evento:") + "Nome Evento:".length();
+            int fim = eventoStr.indexOf("\n", inicio);
+            if (fim == -1) fim = eventoStr.length();
+            return eventoStr.substring(inicio, fim).trim();
+        }
+        return "Evento Desconhecido";
     }
 }
