@@ -24,7 +24,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class menuusuario extends AppCompatActivity {
 
@@ -39,11 +41,12 @@ public class menuusuario extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menuusuario);
 
-        // Recupera CPF do SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
-        cpfAluno = prefs.getString("cpf", null);
+        // Recupera CPF da Intent ou SharedPreferences
         cpfAluno = getIntent().getStringExtra("cpfAluno");
-
+        if (cpfAluno == null) {
+            SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
+            cpfAluno = prefs.getString("cpf", null);
+        }
 
         if (cpfAluno == null) {
             Toast.makeText(this, "Erro ao obter CPF do usuário", Toast.LENGTH_SHORT).show();
@@ -148,21 +151,90 @@ public class menuusuario extends AppCompatActivity {
                     .setTitle("Participar do Evento")
                     .setMessage("Deseja participar deste evento?\n\n" + eventoSelecionado)
                     .setPositiveButton("Participar", (dialog, which) -> {
-                        DatabaseReference participacaoRef = FirebaseDatabase.getInstance()
-                                .getReference("participacoes")
-                                .child(eventoId)
-                                .child(cpfAluno);
 
-                        participacaoRef.setValue(true)
-                                .addOnSuccessListener(unused -> Toast.makeText(menuusuario.this, "Inscrição salva com sucesso!", Toast.LENGTH_SHORT).show())
-                                .addOnFailureListener(e -> Toast.makeText(menuusuario.this, "Erro ao salvar inscrição", Toast.LENGTH_SHORT).show());
+                        DatabaseReference presencasRef = FirebaseDatabase.getInstance().getReference("presencas");
+
+                        // Verifica em qual evento o aluno já está presente
+                        presencasRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                boolean jaPresenteEmOutroEvento = false;
+                                String eventoAtual = null;
+
+                                for (DataSnapshot eventoSnapshot : snapshot.getChildren()) {
+                                    if (eventoSnapshot.hasChild(cpfAluno)) {
+                                        jaPresenteEmOutroEvento = true;
+                                        eventoAtual = eventoSnapshot.getKey();
+                                        break;
+                                    }
+                                }
+
+                                if (jaPresenteEmOutroEvento) {
+                                    Toast.makeText(menuusuario.this,
+                                            "Aluno já está registrado no evento: " + eventoAtual,
+                                            Toast.LENGTH_LONG).show();
+                                } else {
+                                    // Se não estiver presente em outro evento, registra presença no evento selecionado
+                                    DatabaseReference alunoRef = FirebaseDatabase.getInstance()
+                                            .getReference("alunos")
+                                            .child(cpfAluno);
+
+                                    alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            if (snapshot.exists()) {
+                                                String nomeAluno = snapshot.child("nome").getValue(String.class);
+                                                String emailAluno = snapshot.child("email").getValue(String.class);
+                                                String cpf = snapshot.child("cpf").getValue(String.class);
+
+                                                if (nomeAluno != null && emailAluno != null && cpf != null) {
+                                                    DatabaseReference presencaRef = presencasRef.child(eventoId).child(cpfAluno);
+
+                                                    Map<String, Object> dadosAluno = new HashMap<>();
+                                                    dadosAluno.put("nome", nomeAluno);
+                                                    dadosAluno.put("email", emailAluno);
+                                                    dadosAluno.put("horaEntrada", horaAtual());
+
+                                                    presencaRef.setValue(dadosAluno)
+                                                            .addOnSuccessListener(unused ->
+                                                                    Toast.makeText(menuusuario.this, "Presença registrada com sucesso!", Toast.LENGTH_SHORT).show())
+                                                            .addOnFailureListener(e ->
+                                                                    Toast.makeText(menuusuario.this, "Erro ao registrar presença", Toast.LENGTH_SHORT).show());
+                                                } else {
+                                                    Toast.makeText(menuusuario.this, "Dados incompletos do aluno", Toast.LENGTH_SHORT).show();
+                                                }
+                                            } else {
+                                                Toast.makeText(menuusuario.this, "Aluno não encontrado", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            Toast.makeText(menuusuario.this, "Erro ao buscar dados do aluno", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(menuusuario.this, "Erro ao verificar presença do aluno", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
+
         });
+
+
 
         // Carrega eventos do Firebase
         carregarEventosDoFirebase();
+    }
+    private String horaAtual() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
+        return sdf.format(new java.util.Date());
     }
 
     private void carregarEventosDoFirebase() {
