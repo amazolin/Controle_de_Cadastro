@@ -79,52 +79,84 @@ public class menuusuario extends AppCompatActivity {
             }
 
             if (id == R.id.ticket) {
-                if (listaEventosVisiveis.isEmpty()) {
-                    Toast.makeText(menuusuario.this, "Nenhum evento disponível para gerar QR Code", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-
-                String eventoSelecionado = listaEventosVisiveis.get(0);
-                String nomeEvento = extrairNomeEvento(eventoSelecionado); // Aqui a correção foi aplicada
-
-                DatabaseReference alunoRef = FirebaseDatabase.getInstance()
-                        .getReference("alunos")
-                        .child(cpfAluno);
-
-                alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                buscarEventoDoAluno(cpfAluno, new EventoCallback() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            String nomeAluno = snapshot.child("nome").getValue(String.class);
-                            String emailAluno = snapshot.child("email").getValue(String.class);
-                            String cpf = snapshot.child("cpf").getValue(String.class);
+                    public void onEventoEncontrado(String eventoId) {
+                        // Buscar os dados do aluno
+                        DatabaseReference alunoRef = FirebaseDatabase.getInstance()
+                                .getReference("alunos")
+                                .child(cpfAluno);
 
-                            if (nomeAluno != null && emailAluno != null && cpf != null) {
-                                String conteudoQR = "Nome: " + nomeAluno +
-                                        "\nCPF: " + cpf +
-                                        "\nEmail: " + emailAluno +
-                                        "\nEvento: " + nomeEvento +
-                                        "\nEventoId: " + id;
+                        alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    String nomeAluno = snapshot.child("nome").getValue(String.class);
+                                    String emailAluno = snapshot.child("email").getValue(String.class);
+                                    String cpf = snapshot.child("cpf").getValue(String.class);
 
-                                Intent intent = new Intent(menuusuario.this, QR_Code.class);
-                                intent.putExtra("conteudoQR", conteudoQR);
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(menuusuario.this, "Dados incompletos do aluno", Toast.LENGTH_SHORT).show();
+                                    if (nomeAluno != null && emailAluno != null && cpf != null) {
+                                        // Opcional: buscar nomeEvento para mostrar no QR (se quiser, pode criar método pra isso)
+                                        // Buscar nome do evento usando o eventoId
+                                        DatabaseReference eventoRef = FirebaseDatabase.getInstance()
+                                                .getReference("eventos")
+                                                .child(eventoId);
+
+                                        eventoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot eventoSnapshot) {
+                                                if (eventoSnapshot.exists()) {
+                                                    String nomeEvento = eventoSnapshot.child("nome").getValue(String.class);
+
+                                                    String conteudoQR = "Nome: " + nomeAluno +
+                                                            "\nCPF: " + cpf +
+                                                            "\nEmail: " + emailAluno +
+                                                            "\nEvento: " + eventoId +
+                                                            "\nNomeEvento: " + nomeEvento;
+
+                                                    Intent intent = new Intent(menuusuario.this, QR_Code.class);
+                                                    intent.putExtra("conteudoQR", conteudoQR);
+                                                    startActivity(intent);
+                                                } else {
+                                                    Toast.makeText(menuusuario.this, "Evento não encontrado", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                Toast.makeText(menuusuario.this, "Erro ao buscar nome do evento", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+
+                                    } else {
+                                        Toast.makeText(menuusuario.this, "Dados incompletos do aluno", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(menuusuario.this, "Aluno não encontrado no banco de dados", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        } else {
-                            Toast.makeText(menuusuario.this, "Aluno não encontrado no banco de dados", Toast.LENGTH_SHORT).show();
-                        }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(menuusuario.this, "Erro ao buscar dados do aluno", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(menuusuario.this, "Erro ao buscar dados do aluno", Toast.LENGTH_SHORT).show();
+                    public void onEventoNaoEncontrado() {
+                        Toast.makeText(menuusuario.this, "Aluno não está registrado em nenhum evento", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onErro(Exception e) {
+                        Toast.makeText(menuusuario.this, "Erro ao buscar evento do aluno", Toast.LENGTH_SHORT).show();
                     }
                 });
 
                 return true;
             }
+
 
             return false;
         });
@@ -189,7 +221,6 @@ public class menuusuario extends AppCompatActivity {
                                                     Map<String, Object> dadosAluno = new HashMap<>();
                                                     dadosAluno.put("nome", nomeAluno);
                                                     dadosAluno.put("email", emailAluno);
-                                                    dadosAluno.put("horaEntrada", horaAtual());
 
                                                     presencaRef.setValue(dadosAluno)
                                                             .addOnSuccessListener(unused ->
@@ -314,4 +345,27 @@ public class menuusuario extends AppCompatActivity {
         }
         return "Evento Desconhecido";
     }
+    private void buscarEventoDoAluno(String cpfAluno, EventoCallback callback) {
+        DatabaseReference presencasRef = FirebaseDatabase.getInstance().getReference("presencas");
+
+        presencasRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot eventoSnapshot : snapshot.getChildren()) {
+                    if (eventoSnapshot.hasChild(cpfAluno)) {
+                        String eventoId = eventoSnapshot.getKey();
+                        callback.onEventoEncontrado(eventoId);
+                        return;
+                    }
+                }
+                callback.onEventoNaoEncontrado();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onErro(error.toException());
+            }
+        });
+    }
+
 }

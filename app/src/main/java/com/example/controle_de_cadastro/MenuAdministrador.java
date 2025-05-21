@@ -7,7 +7,6 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,7 +75,6 @@ public class MenuAdministrador extends AppCompatActivity {
         });
     }
 
-        // Trata o resultado da leitura do QR Code
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -87,14 +85,12 @@ public class MenuAdministrador extends AppCompatActivity {
                 String conteudoQR = result.getContents();
                 Toast.makeText(this, "QR Code: " + conteudoQR, Toast.LENGTH_LONG).show();
 
-                // Extrair informações do QR Code
                 String nome = extrairCampo(conteudoQR, "Nome:");
                 String cpf = extrairCampo(conteudoQR, "CPF:");
                 String email = extrairCampo(conteudoQR, "Email:");
                 String evento = extrairCampo(conteudoQR, "Evento:");
 
                 if (cpf != null && evento != null) {
-                    // Buscar ID do evento pelo nome
                     salvarPresencaComEntradaESaida(cpf, evento);
                 } else {
                     Toast.makeText(this, "QR Code inválido", Toast.LENGTH_SHORT).show();
@@ -104,6 +100,7 @@ public class MenuAdministrador extends AppCompatActivity {
             }
         }
     }
+
     private String extrairCampo(String texto, String chave) {
         int inicio = texto.indexOf(chave);
         if (inicio != -1) {
@@ -113,6 +110,7 @@ public class MenuAdministrador extends AppCompatActivity {
         }
         return null;
     }
+
     private void salvarPresencaComEntradaESaida(String cpf, String eventoId) {
         DatabaseReference alunoRef = FirebaseDatabase.getInstance().getReference("alunos").child(cpf);
         alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -149,6 +147,13 @@ public class MenuAdministrador extends AppCompatActivity {
                                     .addOnFailureListener(e ->
                                             Toast.makeText(MenuAdministrador.this, "Erro ao registrar entrada", Toast.LENGTH_SHORT).show());
 
+                        } else if (!presencaSnapshot.hasChild("horaEntrada")) {
+                            presencaRef.child("horaEntrada").setValue(horaFormatada)
+                                    .addOnSuccessListener(unused ->
+                                            Toast.makeText(MenuAdministrador.this, "Hora de entrada registrada!", Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(MenuAdministrador.this, "Erro ao registrar entrada", Toast.LENGTH_SHORT).show());
+
                         } else if (!presencaSnapshot.hasChild("horaSaida")) {
                             presencaRef.child("horaSaida").setValue(horaFormatada)
                                     .addOnSuccessListener(unused ->
@@ -174,6 +179,4 @@ public class MenuAdministrador extends AppCompatActivity {
             }
         });
     }
-
-
 }
