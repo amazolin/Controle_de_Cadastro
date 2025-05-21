@@ -11,14 +11,6 @@ public class Evento {
     public Evento() {
     }
 
-    public Evento(String nome, String dataInicio, String dataTermino, String horaInicio, String horaTermino) {
-        this.nome = nome;
-        this.dataInicio = dataInicio;
-        this.dataTermino = dataTermino;
-        this.horaInicio = horaInicio;
-        this.horaTermino = horaTermino;
-    }
-
     public Evento(String id, String nome, String dataInicio, String dataTermino, String horaInicio, String horaTermino) {
         this.id = id;
         this.nome = nome;
@@ -27,6 +19,7 @@ public class Evento {
         this.horaInicio = horaInicio;
         this.horaTermino = horaTermino;
     }
+
 
     public String getId() {
         return id;

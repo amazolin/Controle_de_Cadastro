@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class Cadastro_Evento extends AppCompatActivity {
 
     EditText txtEvento, txtDataInicio, txtHoraInicio, txtDataTermino, txtHoraTermino;
@@ -36,10 +39,15 @@ public class Cadastro_Evento extends AppCompatActivity {
                 String dataTermino = txtDataTermino.getText().toString();
                 String horaTermino = txtHoraTermino.getText().toString();
 
-                Evento evento = new Evento(nome, dataInicio, dataTermino, horaInicio, horaTermino);
+                // Gerar referência e id
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("eventos").push();
+                String id = ref.getKey();
 
-                EventoDAO dao = new EventoDAO();
-                dao.salvar(evento);
+                // Criar evento com id
+                Evento evento = new Evento(id, nome, dataInicio, dataTermino, horaInicio, horaTermino);
+
+                // Salvar evento com o id
+                ref.setValue(evento);
 
                 Toast.makeText(this, "Evento cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
                 finish();
@@ -49,6 +57,7 @@ public class Cadastro_Evento extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+
 
         btnSairEvento.setOnClickListener(v -> sairParaMainActivity());
     }

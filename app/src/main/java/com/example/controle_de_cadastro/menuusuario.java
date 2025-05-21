@@ -41,7 +41,6 @@ public class menuusuario extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menuusuario);
 
-        // Recupera CPF da Intent ou SharedPreferences
         cpfAluno = getIntent().getStringExtra("cpfAluno");
         if (cpfAluno == null) {
             SharedPreferences prefs = getSharedPreferences("user_data", MODE_PRIVATE);
@@ -60,7 +59,6 @@ public class menuusuario extends AppCompatActivity {
             return insets;
         });
 
-        // Configura Bottom Navigation
         BottomNavigationView navigation = findViewById(R.id.bottom_navigation);
         navigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -87,7 +85,7 @@ public class menuusuario extends AppCompatActivity {
                 }
 
                 String eventoSelecionado = listaEventosVisiveis.get(0);
-                String nomeEvento = extrairNomeEvento(eventoSelecionado);
+                String nomeEvento = extrairNomeEvento(eventoSelecionado); // Aqui a correção foi aplicada
 
                 DatabaseReference alunoRef = FirebaseDatabase.getInstance()
                         .getReference("alunos")
@@ -105,7 +103,8 @@ public class menuusuario extends AppCompatActivity {
                                 String conteudoQR = "Nome: " + nomeAluno +
                                         "\nCPF: " + cpf +
                                         "\nEmail: " + emailAluno +
-                                        "\nEvento: " + nomeEvento;
+                                        "\nEvento: " + nomeEvento +
+                                        "\nEventoId: " + id;
 
                                 Intent intent = new Intent(menuusuario.this, QR_Code.class);
                                 intent.putExtra("conteudoQR", conteudoQR);
@@ -130,7 +129,6 @@ public class menuusuario extends AppCompatActivity {
             return false;
         });
 
-        // Inicialização das listas e ListView
         ListView listView = findViewById(R.id.listView);
         listaEventosVisiveis = new ArrayList<>();
         listaIdsEventos = new ArrayList<>();
@@ -154,7 +152,6 @@ public class menuusuario extends AppCompatActivity {
 
                         DatabaseReference presencasRef = FirebaseDatabase.getInstance().getReference("presencas");
 
-                        // Verifica em qual evento o aluno já está presente
                         presencasRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -174,7 +171,6 @@ public class menuusuario extends AppCompatActivity {
                                             "Aluno já está registrado no evento: " + eventoAtual,
                                             Toast.LENGTH_LONG).show();
                                 } else {
-                                    // Se não estiver presente em outro evento, registra presença no evento selecionado
                                     DatabaseReference alunoRef = FirebaseDatabase.getInstance()
                                             .getReference("alunos")
                                             .child(cpfAluno);
@@ -224,14 +220,11 @@ public class menuusuario extends AppCompatActivity {
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
-
         });
 
-
-
-        // Carrega eventos do Firebase
         carregarEventosDoFirebase();
     }
+
     private String horaAtual() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
         return sdf.format(new java.util.Date());

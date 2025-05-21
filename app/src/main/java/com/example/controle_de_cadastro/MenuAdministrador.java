@@ -113,90 +113,67 @@ public class MenuAdministrador extends AppCompatActivity {
         }
         return null;
     }
-    private void salvarPresencaComEntradaESaida(String cpf, String nomeEvento) {
-        DatabaseReference eventosRef = FirebaseDatabase.getInstance().getReference("eventos");
-
-        eventosRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void salvarPresencaComEntradaESaida(String cpf, String eventoId) {
+        DatabaseReference alunoRef = FirebaseDatabase.getInstance().getReference("alunos").child(cpf);
+        alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot eventoSnap : snapshot.getChildren()) {
-                    String nome = eventoSnap.child("nome").getValue(String.class);
-                    if (nome != null && nome.equalsIgnoreCase(nomeEvento)) {
-                        String eventoId = eventoSnap.getKey(); // ID do evento
-
-                        DatabaseReference alunoRef = FirebaseDatabase.getInstance().getReference("alunos").child(cpf);
-                        alunoRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot alunoSnapshot) {
-                                if (!alunoSnapshot.exists()) {
-                                    Toast.makeText(MenuAdministrador.this, "Aluno não encontrado", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-
-                                String nomeAluno = alunoSnapshot.child("nome").getValue(String.class);
-                                String emailAluno = alunoSnapshot.child("email").getValue(String.class);
-
-                                DatabaseReference presencaRef = FirebaseDatabase.getInstance()
-                                        .getReference("presencas")
-                                        .child(eventoId)
-                                        .child(cpf);
-
-                                presencaRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot presencaSnapshot) {
-                                        long timestampAtual = System.currentTimeMillis();
-                                        String horaFormatada = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(timestampAtual));
-
-                                        if (!presencaSnapshot.exists()) {
-                                            // Primeira leitura → REGISTRA ENTRADA
-                                            Map<String, Object> presenca = new HashMap<>();
-                                            presenca.put("nome", nomeAluno);
-                                            presenca.put("email", emailAluno);
-                                            presenca.put("horaEntrada", horaFormatada);
-
-                                            presencaRef.setValue(presenca)
-                                                    .addOnSuccessListener(unused ->
-                                                            Toast.makeText(MenuAdministrador.this, "Hora de entrada registrada!", Toast.LENGTH_SHORT).show())
-                                                    .addOnFailureListener(e ->
-                                                            Toast.makeText(MenuAdministrador.this, "Erro ao registrar entrada", Toast.LENGTH_SHORT).show());
-
-                                        } else if (!presencaSnapshot.hasChild("horaSaida")) {
-                                            // Segunda leitura → REGISTRA SAÍDA
-                                            presencaRef.child("horaSaida").setValue(horaFormatada)
-                                                    .addOnSuccessListener(unused ->
-                                                            Toast.makeText(MenuAdministrador.this, "Hora de saída registrada!", Toast.LENGTH_SHORT).show())
-                                                    .addOnFailureListener(e ->
-                                                            Toast.makeText(MenuAdministrador.this, "Erro ao registrar saída", Toast.LENGTH_SHORT).show());
-
-                                        } else {
-                                            Toast.makeText(MenuAdministrador.this, "Presença já registrada com entrada e saída.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-                                        Toast.makeText(MenuAdministrador.this, "Erro ao verificar presença", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(MenuAdministrador.this, "Erro ao buscar aluno", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-                        return;
-                    }
+            public void onDataChange(@NonNull DataSnapshot alunoSnapshot) {
+                if (!alunoSnapshot.exists()) {
+                    Toast.makeText(MenuAdministrador.this, "Aluno não encontrado", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                Toast.makeText(MenuAdministrador.this, "Evento não encontrado", Toast.LENGTH_SHORT).show();
+
+                String nomeAluno = alunoSnapshot.child("nome").getValue(String.class);
+                String emailAluno = alunoSnapshot.child("email").getValue(String.class);
+
+                DatabaseReference presencaRef = FirebaseDatabase.getInstance()
+                        .getReference("presencas")
+                        .child(eventoId)
+                        .child(cpf);
+
+                presencaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot presencaSnapshot) {
+                        long timestampAtual = System.currentTimeMillis();
+                        String horaFormatada = new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date(timestampAtual));
+
+                        if (!presencaSnapshot.exists()) {
+                            Map<String, Object> presenca = new HashMap<>();
+                            presenca.put("nome", nomeAluno);
+                            presenca.put("email", emailAluno);
+                            presenca.put("horaEntrada", horaFormatada);
+
+                            presencaRef.setValue(presenca)
+                                    .addOnSuccessListener(unused ->
+                                            Toast.makeText(MenuAdministrador.this, "Hora de entrada registrada!", Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(MenuAdministrador.this, "Erro ao registrar entrada", Toast.LENGTH_SHORT).show());
+
+                        } else if (!presencaSnapshot.hasChild("horaSaida")) {
+                            presencaRef.child("horaSaida").setValue(horaFormatada)
+                                    .addOnSuccessListener(unused ->
+                                            Toast.makeText(MenuAdministrador.this, "Hora de saída registrada!", Toast.LENGTH_SHORT).show())
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(MenuAdministrador.this, "Erro ao registrar saída", Toast.LENGTH_SHORT).show());
+
+                        } else {
+                            Toast.makeText(MenuAdministrador.this, "Presença já registrada com entrada e saída.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(MenuAdministrador.this, "Erro ao verificar presença", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(MenuAdministrador.this, "Erro ao acessar eventos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MenuAdministrador.this, "Erro ao verificar aluno", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
 }
