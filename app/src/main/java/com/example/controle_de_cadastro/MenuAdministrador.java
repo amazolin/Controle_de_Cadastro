@@ -65,7 +65,9 @@ public class MenuAdministrador extends AppCompatActivity {
                     return true;
 
                 } else if (id == R.id.sair) {
-                    // lógica para sair
+                    Intent intent = new Intent(MenuAdministrador.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();  // Fecha a activity atual para não ficar empilhada
                     return true;
                 }
 

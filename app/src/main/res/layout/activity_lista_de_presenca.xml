@@ -41,6 +41,7 @@
         android:backgroundTint="#8C1B8B"
         android:fontFamily="@font/aoboshi_one"
         android:text="Voltar"
+        android:textColor="#FFFF8D"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
