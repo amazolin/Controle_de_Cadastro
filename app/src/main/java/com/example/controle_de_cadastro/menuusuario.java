@@ -443,6 +443,11 @@ public class menuusuario extends AppCompatActivity {
         });
     }
     private void gerarCertificadoPDF(String nome, String email, String eventoId, String horaEntrada, String horaSaida) {
+        if (horaSaida == null || horaSaida.trim().isEmpty()) {
+            Toast.makeText(this, "Participação incompleta: saída não registrada.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         PdfDocument pdfDocument = new PdfDocument();
 
         Paint paint = new Paint();
@@ -501,20 +506,19 @@ public class menuusuario extends AppCompatActivity {
         y += lineSpacing;
         canvas.drawText("Assinatura/Organização", startX, y, paint);
 
-        // LOGO NO RODAPÉ (centralizada na parte inferior)
-        Bitmap rodapeLogo = BitmapFactory.decodeResource(getResources(), R.drawable.logoletras); // Substitua por sua logo
+        // LOGO NO RODAPÉ
+        Bitmap rodapeLogo = BitmapFactory.decodeResource(getResources(), R.drawable.logoletras);
         int logoWidth = 100;
         int logoHeight = 100;
         Bitmap scaledRodapeLogo = Bitmap.createScaledBitmap(rodapeLogo, logoWidth, logoHeight, true);
 
         int logoX = (pageInfo.getPageWidth() - logoWidth) / 2;
-        int logoY = pageInfo.getPageHeight() - logoHeight - 10; // 10px da borda inferior
+        int logoY = pageInfo.getPageHeight() - logoHeight - 10;
 
         canvas.drawBitmap(scaledRodapeLogo, logoX, logoY, paint);
 
         pdfDocument.finishPage(page);
 
-        // Salvar o PDF
         try {
             File file = new File(getExternalFilesDir(null), "certificado_" + nome.replaceAll("\\s+", "_") + ".pdf");
             FileOutputStream fos = new FileOutputStream(file);
@@ -537,6 +541,7 @@ public class menuusuario extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
 
 }

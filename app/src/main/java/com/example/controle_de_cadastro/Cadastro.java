@@ -50,36 +50,46 @@ public class Cadastro extends AppCompatActivity {
         btnCadastrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nome = txtNome.getText().toString();
-                String email = txtEmail.getText().toString();
-                String cpf = txtCpf.getText().toString();
+                String nome = txtNome.getText().toString().trim();
+                String email = txtEmail.getText().toString().trim();
+                String cpf = txtCpf.getText().toString().trim();
                 String senha = txtPassword.getText().toString();
                 String confirmarSenha = txtConfirmPassword.getText().toString();
 
-                // Verificar qual radio está selecionado
-                String tipoUsuario = "";
-                if (rdbtUsuario.isChecked()) {
-                    tipoUsuario = "usuario";
-                } else if (rdbtAdmin.isChecked()) {
-                    tipoUsuario = "administrador";
+                // Verificar se algum campo está vazio
+                if (nome.isEmpty() || email.isEmpty() || cpf.isEmpty() || senha.isEmpty() || confirmarSenha.isEmpty()) {
+                    Toast.makeText(Cadastro.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
+                // Verificar se um tipo de usuário foi selecionado
+                if (radioTipo.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(Cadastro.this, "Selecione o tipo de usuário", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Verificar se as senhas coincidem
                 if (!senha.equals(confirmarSenha)) {
                     Toast.makeText(Cadastro.this, "Senhas não coincidem", Toast.LENGTH_SHORT).show();
                     return;
-                } else {
-                    Toast.makeText(Cadastro.this, "Cadastro feito com sucesso!", Toast.LENGTH_SHORT).show();
                 }
 
-                // Salvar senha como texto simples (sem hash)
+                // Determinar tipo de usuário
+                String tipoUsuario = rdbtUsuario.isChecked() ? "usuario" : "administrador";
+
+                // Criar objeto Aluno e salvar no banco
                 Aluno aluno = new Aluno(nome, email, cpf, senha, tipoUsuario);
                 AlunoDAO alunoDAO = new AlunoDAO();
                 alunoDAO.salvarAluno(aluno);
 
+                Toast.makeText(Cadastro.this, "Cadastro feito com sucesso!", Toast.LENGTH_SHORT).show();
+
+                // Ir para a tela principal
                 Intent in = new Intent(Cadastro.this, MainActivity.class);
                 startActivity(in);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             }
         });
+
     }
 }
