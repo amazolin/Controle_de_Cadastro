@@ -502,10 +502,10 @@ public class menuusuario extends AppCompatActivity {
         canvas.drawText("Assinatura/Organização", startX, y, paint);
 
         // LOGO NO RODAPÉ (centralizada na parte inferior)
-        Bitmap rodapeLogo = BitmapFactory.decodeResource(getResources(), R.drawable.infinit); // Substitua por sua logo
-        int logoWidth = 60;
-        int logoHeight = 60;
-        Bitmap scaledRodapeLogo = Bitmap.createScaledBitmap(rodapeLogo, logoWidth, logoHeight, false);
+        Bitmap rodapeLogo = BitmapFactory.decodeResource(getResources(), R.drawable.logoletras); // Substitua por sua logo
+        int logoWidth = 100;
+        int logoHeight = 100;
+        Bitmap scaledRodapeLogo = Bitmap.createScaledBitmap(rodapeLogo, logoWidth, logoHeight, true);
 
         int logoX = (pageInfo.getPageWidth() - logoWidth) / 2;
         int logoY = pageInfo.getPageHeight() - logoHeight - 10; // 10px da borda inferior
