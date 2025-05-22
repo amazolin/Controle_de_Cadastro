@@ -2,6 +2,12 @@ package com.example.controle_de_cadastro;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,10 +28,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class menuusuario extends AppCompatActivity {
@@ -156,6 +167,70 @@ public class menuusuario extends AppCompatActivity {
 
                 return true;
             }
+            if (id == R.id.certificado) {
+                buscarEventoDoAluno(cpfAluno, new EventoCallback() {
+                    @Override
+                    public void onEventoEncontrado(String eventoId) {
+                        DatabaseReference presencaRef = FirebaseDatabase.getInstance()
+                                .getReference("presencas")
+                                .child(eventoId)
+                                .child(cpfAluno);
+
+                        presencaRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    String nome = snapshot.child("nome").getValue(String.class);
+                                    String email = snapshot.child("email").getValue(String.class);
+                                    String horaEntrada = snapshot.child("horaEntrada").getValue(String.class);
+                                    String horaSaida = snapshot.child("horaSaida").getValue(String.class);
+
+                                    // Buscar nome do evento
+                                    DatabaseReference eventoRef = FirebaseDatabase.getInstance()
+                                            .getReference("eventos")
+                                            .child(eventoId);
+
+                                    eventoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot eventoSnapshot) {
+                                            if (eventoSnapshot.exists()) {
+                                                String nomeEvento = eventoSnapshot.child("nome").getValue(String.class);
+                                                gerarCertificadoPDF(nome, email, nomeEvento, horaEntrada, horaSaida);
+                                            } else {
+                                                Toast.makeText(menuusuario.this, "Evento não encontrado", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            Toast.makeText(menuusuario.this, "Erro ao buscar nome do evento", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    Toast.makeText(menuusuario.this, "Dados de presença não encontrados", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(menuusuario.this, "Erro ao acessar dados de presença", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onEventoNaoEncontrado() {
+                        Toast.makeText(menuusuario.this, "Nenhum evento encontrado para o aluno", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onErro(Exception e) {
+                        Toast.makeText(menuusuario.this, "Erro ao buscar evento: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return true;
+            }
+
 
 
             return false;
@@ -367,5 +442,101 @@ public class menuusuario extends AppCompatActivity {
             }
         });
     }
+    private void gerarCertificadoPDF(String nome, String email, String eventoId, String horaEntrada, String horaSaida) {
+        PdfDocument pdfDocument = new PdfDocument();
+
+        Paint paint = new Paint();
+        Paint titlePaint = new Paint();
+
+        // Configura título
+        titlePaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
+        titlePaint.setTextSize(14);
+
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setTextSize(10);
+
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(300, 400, 1).create();
+        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
+        Canvas canvas = page.getCanvas();
+
+        int centerX = pageInfo.getPageWidth() / 2;
+        int startX = 20;
+        int y = 40;
+        int lineSpacing = 18;
+
+        // Título centralizado
+        canvas.drawText("CERTIFICADO DE PARTICIPAÇÃO", centerX, y, titlePaint);
+        y += 2 * lineSpacing;
+
+        // Texto do certificado
+        canvas.drawText("Certificamos que:", startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText("Nome: " + nome, startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText("Email: " + email, startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText("Participou do evento: " + eventoId, startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText("Entrada: " + horaEntrada, startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText("Saída: " + horaSaida, startX, y, paint);
+        y += lineSpacing;
+
+        String dataHoraEmissao = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date());
+        canvas.drawText("Certificado emitido em:", startX, y, paint);
+        y += lineSpacing;
+
+        canvas.drawText(dataHoraEmissao, startX, y, paint);
+        y += 2 * lineSpacing;
+
+        // Linha de assinatura
+        canvas.drawLine(startX, y, pageInfo.getPageWidth() - startX, y, paint);
+        y += lineSpacing;
+        canvas.drawText("Assinatura/Organização", startX, y, paint);
+
+        // LOGO NO RODAPÉ (centralizada na parte inferior)
+        Bitmap rodapeLogo = BitmapFactory.decodeResource(getResources(), R.drawable.infinit); // Substitua por sua logo
+        int logoWidth = 60;
+        int logoHeight = 60;
+        Bitmap scaledRodapeLogo = Bitmap.createScaledBitmap(rodapeLogo, logoWidth, logoHeight, false);
+
+        int logoX = (pageInfo.getPageWidth() - logoWidth) / 2;
+        int logoY = pageInfo.getPageHeight() - logoHeight - 10; // 10px da borda inferior
+
+        canvas.drawBitmap(scaledRodapeLogo, logoX, logoY, paint);
+
+        pdfDocument.finishPage(page);
+
+        // Salvar o PDF
+        try {
+            File file = new File(getExternalFilesDir(null), "certificado_" + nome.replaceAll("\\s+", "_") + ".pdf");
+            FileOutputStream fos = new FileOutputStream(file);
+            pdfDocument.writeTo(fos);
+            pdfDocument.close();
+            fos.close();
+
+            Toast.makeText(this, "Certificado gerado em: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(androidx.core.content.FileProvider.getUriForFile(
+                    this,
+                    getApplicationContext().getPackageName() + ".provider",
+                    file), "application/pdf");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+
+        } catch (IOException e) {
+            Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
 
 }
